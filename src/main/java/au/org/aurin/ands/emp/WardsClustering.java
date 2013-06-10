@@ -1,161 +1,172 @@
 package au.org.aurin.ands.emp;
 
 import java.io.IOException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.net.URL;
-import java.util.List;
 
-
-import oms3.annotations.Author;
 import oms3.annotations.Description;
 import oms3.annotations.Execute;
 import oms3.annotations.In;
-import oms3.annotations.Keywords;
-import oms3.annotations.License;
+import oms3.annotations.Initialize;
 import oms3.annotations.Name;
 import oms3.annotations.Out;
-import oms3.annotations.Status;
 
 import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPList;
-import org.rosuda.REngine.REXPMismatchException;
-import org.rosuda.REngine.REngineException;
-import org.rosuda.REngine.RList;
-import org.rosuda.REngine.Rserve.RConnection;
-import org.rosuda.REngine.REXPInteger;
-import org.rosuda.REngine.REXPVector;
-import org.rosuda.REngine.REXPString;
 import org.rosuda.REngine.REXPDouble;
+import org.rosuda.REngine.REXPInteger;
 import org.rosuda.REngine.REXPLogical;
+import org.rosuda.REngine.REXPMismatchException;
+import org.rosuda.REngine.REXPString;
+import org.rosuda.REngine.REngineException;
+import org.rosuda.REngine.Rserve.RConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-
-import au.edu.uq.interfaces.Statistics;
-import au.edu.uq.preload.LoadRScript;
-import au.edu.uq.preload.Rserve;
-
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFactorySpi;
-import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureWriter;
-import org.geotools.data.FileDataStore;
-import org.geotools.data.FileDataStoreFinder;
-import org.geotools.data.Transaction;
-import org.geotools.data.collection.ListFeatureCollection;
-import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.data.simple.SimpleFeatureIterator;
-import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.data.simple.SimpleFeatureStore;
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.geojson.feature.FeatureJSON;
-import org.geotools.geometry.jts.GeometryBuilder;
-import org.geotools.geometry.jts.JTS;
-import org.geotools.geometry.jts.JTSFactoryFinder;
-
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.styling.PolygonSymbolizer;
-import org.geotools.styling.SLD;
-import org.geotools.styling.Style;
-import org.geotools.styling.StyleBuilder;
-
+import au.edu.uq.aurin.util.Rscript;
+import au.edu.uq.aurin.util.Rserve;
+//import au.org.aurin.ands.emp.preload.LoadRScriptEmpcluster;
+//import au.org.aurin.ands.emp.preload.Rserve;
 
 public class WardsClustering {
+  
+  private static final Logger LOGGER = LoggerFactory
+      .getLogger(WardsClustering.class);
 	
+  @In
 	@Description("Input R connection")
-	@In
-	public RConnection c;
+	public RConnection cIn;
 	/**
 	 * {@link RConnection} A valid connection to a running {@link Rserve}
 	 * instance
 	 */
 	
-	@Description("Input Integer for geo-distance threshold")
-	@In
+  @In
+  @Name("Geo-Distance Threshold")
+	@Description("Set maximum distance beyond which polygons will not merge.")
 	public int geodisthreshold = 20;
 	/**
 	 * {@link int} Input Integer for geo-distance threshold
 	 */
 	
-	@Description("Input Integer for target cluster number")
-	@In
+  @In
+  @Name("Target Cluster Number")
+	@Description("Set minimum cluster number at which algorithm will stop.")
 	public int targetclusternum = 1;
 	/**
 	 * {@link int} Input Integer for target cluster number
 	 */
 	
-	@Description("Input String for interested column names")
-	@In
+  @In
+  @Name("Non-Spatial Attribute Selection")
+	@Description("Select all non-spatial attributes required for analysis.")
 	public String interestedColNamesString;
 	/**
 	 * {@link String} Input String for interested column names
 	 */
 	
-	@Description("Input String for interested column weights")
-	@In
+  @In
+  @Name("Non-Spatial Attribute Weights")
+	@Description("Insert comma separated values. Values must sum to 1.")
 	public String interestedColWeightsString;
 	/**
 	 * {@link String} Input String for interested column weights
 	 */
 
-	@Description("Input String for display column names string")
-	@In
+  @In
+  @Name("Additional Attributes For Display")
+	@Description("Additional attributes for display in dataset tabular output.")
 	public String displayColNamesString;
 	/**
 	 * {@link String} Input String for display column names string
 	 */
 	
-	@Description("igore data row if job numbers in all interested columns are less than this value.")
-	@In
-	public double ignoreEmptyRowJobNum = 10;
+  @In
+  @Name("Non-Spatial Attribute Minimum Count")
+	@Description("Select minimum non-spatial attribute for polygons to be included in cluster analysis.")
+	public double ignoreEmptyRowJobNum = 1;
 	/**
-	 * {@link double} igore data row if job numbers in all interested columns are less than this value
+	 * {@link double} ignore data row if job numbers in all interested columns are less than this value
 	 */
 	
-	@Description("perform clustering using value chain mode or not. if true, the interested columns will be added up into a new column called 'vcvalue', on which, the non-spatial distance will be computed and used as a factor to generate the final clustering result")
-	@In
+  @In
+  @Name("Value Chain Mode")
+	@Description("Perform clustering using value chain mode or not. " +
+			"If false, the non-spatial attributes will be added up into a new column called 'vcvalue', " +
+			"on which, the non-spatial distance will be computed and used as a factor to generate the final clustering result")
 	public boolean vcmode = true;
 	/**
 	 * {@link boolean} perform clustering using value chain mode or not. if true, the interested columns will be added up into a new column called 'vcvalue', on which, the non-spatial distance will be computed and used as a factor to generate the final clustering resul
 	 */
 	
-	@Description("Input String for spatial and non-spatial distance weights")
-	@In
+  @In
+  @Name("Spatial vs Non-Spatial Distance Weights")
+	@Description("Insert comma separated values. Values must sum to 1.")
 	public String spatialNonSpatialDistWeightsString;
 	/**
 	 * {@link String} Input String for spatial and non-spatial distance weights
 	 */
 		
-	@Description("R connection pass on")
+	@Description("R Connection output")
 	@Out
 	public RConnection cOut;
 	
+	@Initialize
+	public void validateInputs() throws IllegalArgumentException {
+	  //RConnection
+	  if (this.cIn == null) {
+	    throw new IllegalStateException("RConnection is null");
+	  }
+	  //geodisthreshold
+	  if (this.geodisthreshold < 0) {
+      throw new IllegalStateException("Illegal value for Geo-Distance Threshold: " + this.geodisthreshold);
+    }
+	  //targetclusternum
+	  if (this.targetclusternum < 0) {
+      throw new IllegalStateException("Illegal value for Target Cluster Number: " + this.targetclusternum);
+    }
+	  //interestedColNamesString
+	  if (this.interestedColNamesString == null) {
+      throw new IllegalStateException("Non-Spatial Attribute Selection is null: " + this.interestedColNamesString);
+    }
+	  //Non-Spatial Attribute Weights
+	  if (this.interestedColWeightsString == null) {
+      throw new IllegalStateException("Non-Spatial Attribute Weights is null: " + this.interestedColWeightsString);
+    }
+	  //displayColNamesString
+	  if (this.displayColNamesString == null) {
+      throw new IllegalStateException("Illegal value for Additional Attributes For Display: " + this.displayColNamesString);
+    }
+	  //ignoreEmptyRowJobNum
+    if (this.ignoreEmptyRowJobNum < 0) {
+      throw new IllegalStateException("Illegal value for Non-Spatial Attribute Minimum Count: " + this.ignoreEmptyRowJobNum);
+    }
+	  //Value Chain Mode
+	  if (this.vcmode != true & this.vcmode != false) {
+      throw new IllegalStateException("Illegal value for Value Chain Mode: " + this.vcmode);
+    }
+	  //spatialNonSpatialDistWeightsString
+	  if (this.spatialNonSpatialDistWeightsString == null) {
+      throw new IllegalStateException("Illegal value for Spatial vs Non-Spatial Distance Weights: " + this.spatialNonSpatialDistWeightsString);
+    }
+	}
+	
+	
 	@Execute
-	public void compute() {
+	public void compute() throws REXPMismatchException, IOException {
 		try {
-
+		  LOGGER.debug("compute executed");
 			// setup the script to execute
 			// 1. load the required script
-			try {
-				this.c.assign("script", LoadRScript.getWardsClusterScript());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-
+		  
+      try {
+      this.cIn.assign("script", Rscript.load("/wardsClustering.r"));
+      } catch (IOException e) {
+        throw new IOException("Unable to load Script", e);
+      }
+		  
 			// 2. setup the inputs
-			this.c.assign("geodisthreshold", new REXPInteger(this.geodisthreshold));
-			this.c.assign("targetclusternum", new REXPInteger(this.targetclusternum));
-			this.c.assign("displayColNames", new REXPString(this.interestedColNamesString.split(",")));
-			this.c.assign("interestedColNames", new REXPString(this.interestedColNamesString.split(",")));
+			this.cIn.assign("geodisthreshold", new REXPInteger(this.geodisthreshold));
+			this.cIn.assign("targetclusternum", new REXPInteger(this.targetclusternum));
+			this.cIn.assign("displayColNames", new REXPString(this.interestedColNamesString.split(",")));
+			this.cIn.assign("interestedColNames", new REXPString(this.interestedColNamesString.split(",")));
 			
 			double[] interestedColWeights = {};
 			try {
@@ -165,7 +176,7 @@ public class WardsClustering {
 				e.printStackTrace();
 				}
 			
-			this.c.assign("interestedColWeights", new REXPDouble(interestedColWeights));
+			this.cIn.assign("interestedColWeights", new REXPDouble(interestedColWeights));
 			
 			double[] spatialNonSpatialDistWeights = {0.5, 0.5};
 			try {
@@ -175,13 +186,20 @@ public class WardsClustering {
 				e.printStackTrace();
 			}
 			
-			this.c.assign("spatialNonSpatialDistWeights", new REXPDouble(spatialNonSpatialDistWeights));
-			this.c.assign("gIgnoreEmptyRowJobNum", new REXPDouble(this.ignoreEmptyRowJobNum));
-			this.c.assign("gVcMode", new REXPLogical(this.vcmode));
+			this.cIn.assign("spatialNonSpatialDistWeights", new REXPDouble(spatialNonSpatialDistWeights));
+			this.cIn.assign("gIgnoreEmptyRowJobNum", new REXPDouble(this.ignoreEmptyRowJobNum));
+			this.cIn.assign("gVcMode", new REXPLogical(this.vcmode));
+			this.cIn.assign("gErrorOccurs", new REXPLogical(false));
 
 			// 3. call the function defined in the script
-			this.c.eval("try(eval(parse(text=script)),silent=FALSE)");
-			this.cOut = this.c;
+			
+			
+			//this.c.eval("try(eval(parse(text=script)),silent=FALSE)");
+			this.cOut = this.cIn;
+			LOGGER.debug("executeing eval");
+			REXP r = this.cOut.eval("try(eval(parse(text=script)),silent=FALSE)");
+			LOGGER.debug("eval executed");
+      if (r.inherits("try-error")) throw new IllegalStateException(r.asString());
 			return;	
 
 		} catch (REngineException e) {
