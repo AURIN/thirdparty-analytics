@@ -39,7 +39,7 @@ public class WardsClustering {
 	 */
 	
   @In
-  @Name("Geo-Distance Threshold")
+  @Name("Wards Clustering Geo-Distance Threshold")
 	@Description("Set maximum distance beyond which polygons will not merge.")
 	public int geodisthreshold = 20;
 	/**
@@ -47,7 +47,7 @@ public class WardsClustering {
 	 */
 	
   @In
-  @Name("Target Cluster Number")
+  @Name("Wards Clustering Target Cluster Number")
 	@Description("Set minimum cluster number at which algorithm will stop.")
 	public int targetclusternum = 1;
 	/**
@@ -55,7 +55,7 @@ public class WardsClustering {
 	 */
 	
   @In
-  @Name("Non-Spatial Attribute Selection")
+  @Name("Wards Clustering Non-Spatial Attribute Selection")
 	@Description("Select all non-spatial attributes required for analysis.")
 	public String interestedColNamesString;
 	/**
@@ -63,7 +63,7 @@ public class WardsClustering {
 	 */
 	
   @In
-  @Name("Non-Spatial Attribute Weights")
+  @Name("Wards Clustering Non-Spatial Attribute Weights")
 	@Description("Insert comma separated values. Values must sum to 1.")
 	public String interestedColWeightsString;
 	/**
@@ -71,7 +71,7 @@ public class WardsClustering {
 	 */
 
   @In
-  @Name("Additional Attributes For Display")
+  @Name("Wards Clustering Additional Attributes For Display")
 	@Description("Additional attributes for display in dataset tabular output.")
 	public String displayColNamesString;
 	/**
@@ -79,7 +79,7 @@ public class WardsClustering {
 	 */
 	
   @In
-  @Name("Non-Spatial Attribute Minimum Count")
+  @Name("Wards Clustering Non-Spatial Attribute Minimum Count")
 	@Description("Select minimum non-spatial attribute for polygons to be included in cluster analysis.")
 	public double ignoreEmptyRowJobNum = 1;
 	/**
@@ -87,7 +87,7 @@ public class WardsClustering {
 	 */
 	
   @In
-  @Name("Value Chain Mode")
+  @Name("Wards Clustering Value Chain Mode")
 	@Description("Perform clustering using value chain mode or not. " +
 			"If false, the non-spatial attributes will be added up into a new column called 'vcvalue', " +
 			"on which, the non-spatial distance will be computed and used as a factor to generate the final clustering result")
@@ -97,7 +97,7 @@ public class WardsClustering {
 	 */
 	
   @In
-  @Name("Spatial vs Non-Spatial Distance Weights")
+  @Name("Wards Clustering Spatial vs Non-Spatial Distance Weights")
 	@Description("Insert comma separated values. Values must sum to 1.")
 	public String spatialNonSpatialDistWeightsString;
 	/**
