@@ -109,7 +109,7 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
   # (6) proj4string: output shp file projection information, so the output can be reprojected or no-projection applied (using GCS)
   # (7) clustnum: target clustering number
   # (8) useCentroidDist: if true, use the centroid distance instead of the hausdorff distance to measure the distance between polygons. It speeds up the process enormously. 
-  # (9) vcmode: value chain mode, if true, the value (job numbers) of interested attributes (job categories) will add up (weights NOT applied) as a new column ('vcvalue') and clustering will be performed on this column. If false, clustering will be performed on all interested attributes.
+  # (9) vcmode: value chain mode, if false, the value (job numbers) of interested attributes (job categories) will add up (weights NOT applied) as a new column ('vcvalue') and clustering will be performed on this column. If true, clustering will be performed on all interested attributes.
   #
   # output:
   # new shp file with a new data column marks its ward's cluster number
@@ -141,7 +141,7 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
   adata[,"wardclut"] = c(1:nrow(adata))
   
   # append a column to hold the value chain value
-  if(vcmode==TRUE){
+  if(vcmode==FALSE){
     if(length(IN_NS_ATTR_NAMES)>1){
       adata[,"vcvalue"] = rowSums(adata[,IN_NS_ATTR_NAMES])
     } else {
@@ -159,7 +159,7 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
     norm_ns_attrs_dataframe[[ns_attr_no]] = f_norm(norm_ns_attrs_dataframe[[ns_attr_no]])
   }
   
-  if(vcmode==TRUE){
+  if(vcmode==FALSE){
     # do the normalization on "vcvalue" column
     norm_ns_attrs_dataframe[,"vcvalue"] = f_norm(adata[,"vcvalue"])
   }
@@ -219,7 +219,7 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
       # issue: how to handle the distance between NA attribute value(s)? A simple way is to set the distance 0 so it makes no contribution (not exactly, it actually shortens the "real" distance) to the final dPDF.
       # updates: if NA exists in any one of the calculating attributes, the resulst is NA, and will be retained in the raw dataframe
       nsp_dist = 0
-      if(vcmode==TRUE){
+      if(vcmode==FALSE){
         nsp_dist = abs(adata[idx_i, "vcvalue"] - adata[idx_j, "vcvalue"])
       } else {
         for(ns_attr_no in 1:length(IN_NS_ATTR_NAMES)){
@@ -310,7 +310,7 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
     for(ns_attr_no in 1:length(IN_NS_ATTR_NAMES)){
       adata[idx_i_filter, IN_NS_ATTR_NAMES[ns_attr_no]] = adata[idx_i_filter, IN_NS_ATTR_NAMES[ns_attr_no]] +  adata[idx_j_filter, IN_NS_ATTR_NAMES[ns_attr_no]]
     }
-    if(vcmode==TRUE){
+    if(vcmode==FALSE){
       adata[idx_i_filter,"vcvalue"] = adata[idx_i_filter,"vcvalue"] + adata[idx_j_filter,"vcvalue"]
     }
     
@@ -345,7 +345,7 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
       norm_ns_attrs_dataframe[[ns_attr_no]] = f_norm(norm_ns_attrs_dataframe[[ns_attr_no]])
     }
     
-    if(vcmode==TRUE){
+    if(vcmode==FALSE){
       # do the normalization on "vcvalue" column
       norm_ns_attrs_dataframe[,"vcvalue"] = f_norm(adata[,"vcvalue"])
     }
@@ -390,7 +390,7 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
       
       # calc non spatial distance (Euclidian distance, or we can use Manhattan distance)
       nsp_dist = 0
-      if(vcmode==TRUE){
+      if(vcmode==FALSE){
         nsp_dist = abs(norm_ns_attrs_dataframe[idx_i_filter, "vcvalue"] - norm_ns_attrs_dataframe_rest[rest_idx, "vcvalue"])
       } else {
         for(ns_attr_no in 1:length(IN_NS_ATTR_NAMES)){
@@ -427,7 +427,7 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
   sp = SpatialPolygons(pdata)
   sp@proj4string = CRS(CONST_projected_proj4string)
   # for the merged polygons, the attribute data should only contain the job numbers and cluster number as valid information
-  if(vcmode==TRUE){
+  if(vcmode==FALSE){
     adata = adata[,c(IN_NS_ATTR_NAMES,"wardclut","vcvalue")]
   } else {
     adata = adata[,c(IN_NS_ATTR_NAMES,"wardclut")]
@@ -445,8 +445,8 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
   #plot(newDataFrame_pj)
   
   # output data
-  #writeOGR(obj=newDataFrame_pj, dsn="./outputs", layer="tmpRlt", driver="ESRI Shapefile", check_exists=TRUE, overwrite_layer=TRUE)
-  #writeOGR(obj=newDataFrame_pj_bak, dsn="./outputs", layer="tmpRlt_bak", driver="ESRI Shapefile", check_exists=TRUE, overwrite_layer=TRUE)
+  #writeOGR(obj=newDataFrame_pj, dsn="./", layer="tmpRlt", driver="ESRI Shapefile", check_exists=TRUE, overwrite_layer=TRUE)
+  #writeOGR(obj=newDataFrame_pj_bak, dsn="./", layer="tmpRlt_bak", driver="ESRI Shapefile", check_exists=TRUE, overwrite_layer=TRUE)
   
   algEndTime = Sys.time()
   print(paste("=== algorithm ends at ", Sys.time(), " ==="))
@@ -497,6 +497,11 @@ f_run <- function(useCentroidDist = TRUE, ignoreEmptyRow = TRUE){
   if (interestedColNames <= 0){
     interestedColNames = 1
   }
+    
+  # uppercase all display and interested column names
+  displayColNames = toupper(displayColNames)
+  interestedColNames = toupper(interestedColNames)
+    
   
   # displayColNames can be empty
   displayColNames = displayColNames[which(displayColNames %in% colnames(gAttrData))]
