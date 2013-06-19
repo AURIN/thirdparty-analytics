@@ -48,8 +48,8 @@ public class WardsClusteringTest {
 	public void test() throws RserveException, IOException, REXPMismatchException {
 		
 		System.out.println("========= Test case NewWards");
-		String path  = this.getClass().getClassLoader().getResource("data/testSample").getPath();
-		path += "/" + "IssuePolygons_qgis";
+		String path  = this.getClass().getClassLoader().getResource("data/testSample/MidPolygon2006_2011/").getPath();
+		path += "/" + "MidPoly_X_Employment_2006";
 		
 		
     String rWorkingDir = this.getClass().getClassLoader().getResource("outputs").getPath();
@@ -61,7 +61,7 @@ public class WardsClusteringTest {
     cOut.assign("shpUrl", new REXPString(path));
     cOut.assign("geoJSONFilePath", new REXPString(path + ".geojson"));
     //cOut.assign("geojSONString", new REXPString(this.geojSONString));
-    cOut.assign("spatialDataFormatMode", new REXPInteger(1));
+    cOut.assign("spatialDataFormatMode", new REXPInteger(0));
 
     cOut.assign("rWorkingDir", new REXPString(rWorkingDir));
       
@@ -72,7 +72,7 @@ public class WardsClusteringTest {
 		wc.cIn = cOut;
 		
 		wc.geodisthreshold = 10;
-		wc.targetclusternum = 1;
+		wc.targetclusternum = 5;
 		wc.interestedColNamesString = "X2310,X2412,X8500";
 		wc.displayColNamesString = "LGA_CODE,LGA,ZONE_CODE";
 		wc.interestedColWeightsString = "0.333,0.333,0.333";

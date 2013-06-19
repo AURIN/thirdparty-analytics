@@ -26,14 +26,15 @@ f_DataFrame2JSONString <- function(targetDataFrame=NULL)
   
   if(nrow(targetDataFrame)==0) return("[]")
   
-  tmpFilePath = "./dump.geojson"
+  tmpFilePath = sprintf("./dump_%s.geojson",as.character(as.integer(runif(1)*100000)))
   tmpStr = ""
   # for spatial data frame, convert to geojson
   if(inherits(targetDataFrame, "Spatial")){
     print("=== spatial dataframe detected")
-    if(file.exists(tmpFilePath)) file.remove(tmpFilePath)   
+    #if(file.exists(tmpFilePath)) file.remove(tmpFilePath)   
     writeOGR(obj=targetDataFrame, dsn=tmpFilePath, layer="dump", driver = "GeoJSON",  check_exists=TRUE, overwrite_layer=TRUE)    
     tmpStr = readChar(tmpFilePath, file.info(tmpFilePath)$size)
+    if(file.exists(tmpFilePath)) file.remove(tmpFilePath)
     return(tmpStr)
   }
   

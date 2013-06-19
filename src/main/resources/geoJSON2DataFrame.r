@@ -44,6 +44,9 @@ f_spatialDataParsing <- function(){
  
   }
   
+  # uppercase all column names
+  colnames(x@data) = toupper(colnames(x@data))
+    
   gOriginalProj4string <<- attr(x@proj4string,"projargs")
   
   # check if the original data is projected
