@@ -165,15 +165,25 @@ public class WardsClustering {
 			// 2. setup the inputs
 			this.cIn.assign("geodisthreshold", new REXPInteger(this.geodisthreshold));
 			this.cIn.assign("targetclusternum", new REXPInteger(this.targetclusternum));
-			this.cIn.assign("displayColNames", new REXPString(this.interestedColNamesString.split(",")));
+			this.cIn.assign("displayColNames", new REXPString(this.displayColNamesString.split(",")));
 			this.cIn.assign("interestedColNames", new REXPString(this.interestedColNamesString.split(",")));
 			
 			double[] interestedColWeights = {};
 			try {
 				interestedColWeights = this.convertStringArraytoDoubleArray(this.interestedColWeightsString.split(","));
+				
+				// test if interestedColWeights add up to 1
+				double sumWeight = 0.0;
+				for(int i=0; i<interestedColWeights.length; i++){
+					sumWeight = sumWeight + interestedColWeights[i];
+				}
+				if (sumWeight<0.99 || sumWeight>1.0){
+					throw new Exception("weights of interested columns should add up to 1");
+				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return;
 				}
 			
 			this.cIn.assign("interestedColWeights", new REXPDouble(interestedColWeights));
@@ -181,9 +191,18 @@ public class WardsClustering {
 			double[] spatialNonSpatialDistWeights = {0.5, 0.5};
 			try {
 				spatialNonSpatialDistWeights = this.convertStringArraytoDoubleArray(this.spatialNonSpatialDistWeightsString.split(","));
+				// test if spatialNonSpatialDistWeights add up to 1
+				double sumWeight = 0.0;
+				for(int i=0; i<spatialNonSpatialDistWeights.length; i++){
+					sumWeight = sumWeight + spatialNonSpatialDistWeights[i];
+				}
+				if (sumWeight<0.99 || sumWeight>1.0){
+					throw new Exception("weights of spatial and non-spatial distances should add up to 1");
+				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return;
 			}
 			
 			this.cIn.assign("spatialNonSpatialDistWeights", new REXPDouble(spatialNonSpatialDistWeights));
