@@ -22,36 +22,36 @@ import au.org.aurin.ands.emp.WardsClustering;
 
 public class WardsClusteringTest {
 
-	@BeforeClass
-	public static void initRserve() {
-		boolean rRunning = false;
-		// 0. Start Rserve - This should already be running, if not we start it
-		rRunning = Rserve.checkLocalRserve();
-		System.out.println("Rserve running? " + rRunning);
-		if (!rRunning) {
-			Assert.fail("Without Rserve running we cannot proceed");
-		}
-	}
-	@AfterClass
-	public static void terminateRserve() {
-		boolean rRunning = true;
-		// Stop Rserve if we started it
-		rRunning = Rserve.shutdownRserve();
-		System.out.println("Rserve shutdown? " + rRunning);
-		if (!rRunning) {
-			Assert.fail("Cannot Shutdown Rserve, Check if there are permissions "
-					+ "to shut it down if the process is owned by a different user");
-		}
-	}
-	
-	@Test
-	public void test() throws RserveException, IOException, REXPMismatchException {
-		
-		System.out.println("========= Test case NewWards");
-		String path  = this.getClass().getClassLoader().getResource("data/testSample/MidPolygon2006_2011/").getPath();
-		path += "/" + "MidPoly_X_Employment_2006";
-		
-		
+  @BeforeClass
+  public static void initRserve() {
+    boolean rRunning = false;
+    // 0. Start Rserve - This should already be running, if not we start it
+    rRunning = Rserve.checkLocalRserve();
+    System.out.println("Rserve running? " + rRunning);
+    if (!rRunning) {
+      Assert.fail("Without Rserve running we cannot proceed");
+    }
+  }
+  @AfterClass
+  public static void terminateRserve() {
+    boolean rRunning = true;
+    // Stop Rserve if we started it
+    rRunning = Rserve.shutdownRserve();
+    System.out.println("Rserve shutdown? " + rRunning);
+    if (!rRunning) {
+      Assert.fail("Cannot Shutdown Rserve, Check if there are permissions "
+          + "to shut it down if the process is owned by a different user");
+    }
+  }
+  
+  @Test
+  public void test() throws RserveException, IOException, REXPMismatchException {
+    
+    System.out.println("========= Test case NewWards");
+    String path  = this.getClass().getClassLoader().getResource("data/testSample/MidPolygon2006_2011/").getPath();
+    path += "/" + "MidPoly_X_Employment_2006";
+    
+    
     String rWorkingDir = this.getClass().getClassLoader().getResource("outputs").getPath();
     System.out.println(rWorkingDir);
       
@@ -66,23 +66,23 @@ public class WardsClusteringTest {
     cOut.assign("rWorkingDir", new REXPString(rWorkingDir));
       
     cOut.eval("try(eval(parse(text=script)),silent=FALSE)");
-   		
-		WardsClustering wc = new WardsClustering();
+       
+    WardsClustering wc = new WardsClustering();
 
-		wc.cIn = cOut;
-		
-		wc.geodisthreshold = 10;
-		wc.targetclusternum = 5;
-		wc.interestedColNamesString = "X2310,X2412,X8500";
-		wc.displayColNamesString = "LGA_CODE,LGA,ZONE_CODE";
-		wc.interestedColWeightsString = "0.333,0.333,0.333";
-		wc.spatialNonSpatialDistWeightsString = "0.9,0.1";
-		wc.ignoreEmptyRowJobNum = 1;
-		wc.vcmode = true;
-		wc.compute();
+    wc.cIn = cOut;
+    
+    wc.geodisthreshold = 10;
+    wc.targetclusternum = 5;
+    wc.interestedColNamesString = "X2310,X2412,X8500";
+    wc.displayColNamesString = "LGA_CODE,LGA,ZONE_CODE";
+    wc.interestedColWeightsString = "0.333,0.333,0.333";
+    wc.spatialNonSpatialDistWeightsString = "0.9,0.1";
+    wc.ignoreEmptyRowJobNum = 1;
+    wc.vcmode = true;
+    wc.compute();
 
-	}
-	
-	
+  }
+  
+  
 
 }

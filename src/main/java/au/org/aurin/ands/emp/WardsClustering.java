@@ -29,213 +29,213 @@ public class WardsClustering {
   
   private static final Logger LOGGER = LoggerFactory
       .getLogger(WardsClustering.class);
-	
+  
   @In
-	@Description("Input R connection")
-	public RConnection cIn;
-	/**
-	 * {@link RConnection} A valid connection to a running {@link Rserve}
-	 * instance
-	 */
-	
+  @Description("Input R connection")
+  public RConnection cIn;
+  /**
+   * {@link RConnection} A valid connection to a running {@link Rserve}
+   * instance
+   */
+  
   @In
   @Name("Wards Clustering Geo-Distance Threshold")
-	@Description("Set maximum distance beyond which polygons will not merge.")
-	public int geodisthreshold = 20;
-	/**
-	 * {@link int} Input Integer for geo-distance threshold
-	 */
-	
+  @Description("Set maximum distance beyond which polygons will not merge.")
+  public int geodisthreshold = 20;
+  /**
+   * {@link int} Input Integer for geo-distance threshold
+   */
+  
   @In
   @Name("Wards Clustering Target Cluster Number")
-	@Description("Set minimum cluster number at which algorithm will stop.")
-	public int targetclusternum = 1;
-	/**
-	 * {@link int} Input Integer for target cluster number
-	 */
-	
+  @Description("Set minimum cluster number at which algorithm will stop.")
+  public int targetclusternum = 1;
+  /**
+   * {@link int} Input Integer for target cluster number
+   */
+  
   @In
   @Name("Wards Clustering Non-Spatial Attribute Selection")
-	@Description("Select all non-spatial attributes required for analysis.")
-	public String interestedColNamesString;
-	/**
-	 * {@link String} Input String for interested column names
-	 */
-	
+  @Description("Select all non-spatial attributes required for analysis.")
+  public String interestedColNamesString;
+  /**
+   * {@link String} Input String for interested column names
+   */
+  
   @In
   @Name("Wards Clustering Non-Spatial Attribute Weights")
-	@Description("Insert comma separated values. Values must sum to 1.")
-	public String interestedColWeightsString;
-	/**
-	 * {@link String} Input String for interested column weights
-	 */
+  @Description("Insert comma separated values. Values must sum to 1.")
+  public String interestedColWeightsString;
+  /**
+   * {@link String} Input String for interested column weights
+   */
 
   @In
   @Name("Wards Clustering Additional Attributes For Display")
-	@Description("Additional attributes for display in dataset tabular output.")
-	public String displayColNamesString;
-	/**
-	 * {@link String} Input String for display column names string
-	 */
-	
+  @Description("Additional attributes for display in dataset tabular output.")
+  public String displayColNamesString;
+  /**
+   * {@link String} Input String for display column names string
+   */
+  
   @In
   @Name("Wards Clustering Non-Spatial Attribute Minimum Count")
-	@Description("Select minimum non-spatial attribute for polygons to be included in cluster analysis.")
-	public double ignoreEmptyRowJobNum = 1;
-	/**
-	 * {@link double} ignore data row if job numbers in all interested columns are less than this value
-	 */
-	
+  @Description("Select minimum non-spatial attribute for polygons to be included in cluster analysis.")
+  public double ignoreEmptyRowJobNum = 1;
+  /**
+   * {@link double} ignore data row if job numbers in all interested columns are less than this value
+   */
+  
   @In
   @Name("Wards Clustering Value Chain Mode")
-	@Description("Perform clustering using value chain mode or not. " +
-			"If false, the non-spatial attributes will be added up into a new column called 'vcvalue', " +
-			"on which, the non-spatial distance will be computed and used as a factor to generate the final clustering result")
-	public boolean vcmode = true;
-	/**
-	 * {@link boolean} perform clustering using value chain mode or not. if true, the interested columns will be added up into a new column called 'vcvalue', on which, the non-spatial distance will be computed and used as a factor to generate the final clustering resul
-	 */
-	
+  @Description("Perform clustering using value chain mode or not. " +
+      "If false, the non-spatial attributes will be added up into a new column called 'vcvalue', " +
+      "on which, the non-spatial distance will be computed and used as a factor to generate the final clustering result")
+  public boolean vcmode = true;
+  /**
+   * {@link boolean} perform clustering using value chain mode or not. if true, the interested columns will be added up into a new column called 'vcvalue', on which, the non-spatial distance will be computed and used as a factor to generate the final clustering resul
+   */
+  
   @In
   @Name("Wards Clustering Spatial vs Non-Spatial Distance Weights")
-	@Description("Insert comma separated values. Values must sum to 1.")
-	public String spatialNonSpatialDistWeightsString;
-	/**
-	 * {@link String} Input String for spatial and non-spatial distance weights
-	 */
-		
-	@Description("R Connection output")
-	@Out
-	public RConnection cOut;
-	
-	@Initialize
-	public void validateInputs() throws IllegalArgumentException {
-	  //RConnection
-	  if (this.cIn == null) {
-	    throw new IllegalStateException("RConnection is null");
-	  }
-	  //geodisthreshold
-	  if (this.geodisthreshold < 0) {
+  @Description("Insert comma separated values. Values must sum to 1.")
+  public String spatialNonSpatialDistWeightsString;
+  /**
+   * {@link String} Input String for spatial and non-spatial distance weights
+   */
+    
+  @Description("R Connection output")
+  @Out
+  public RConnection cOut;
+  
+  @Initialize
+  public void validateInputs() throws IllegalArgumentException {
+    //RConnection
+    if (this.cIn == null) {
+      throw new IllegalStateException("RConnection is null");
+    }
+    //geodisthreshold
+    if (this.geodisthreshold < 0) {
       throw new IllegalStateException("Illegal value for Geo-Distance Threshold: " + this.geodisthreshold);
     }
-	  //targetclusternum
-	  if (this.targetclusternum < 0) {
+    //targetclusternum
+    if (this.targetclusternum < 0) {
       throw new IllegalStateException("Illegal value for Target Cluster Number: " + this.targetclusternum);
     }
-	  //interestedColNamesString
-	  if (this.interestedColNamesString == null) {
+    //interestedColNamesString
+    if (this.interestedColNamesString == null) {
       throw new IllegalStateException("Non-Spatial Attribute Selection is null: " + this.interestedColNamesString);
     }
-	  //Non-Spatial Attribute Weights
-	  if (this.interestedColWeightsString == null) {
+    //Non-Spatial Attribute Weights
+    if (this.interestedColWeightsString == null) {
       throw new IllegalStateException("Non-Spatial Attribute Weights is null: " + this.interestedColWeightsString);
     }
-	  //displayColNamesString
-	  if (this.displayColNamesString == null) {
+    //displayColNamesString
+    if (this.displayColNamesString == null) {
       throw new IllegalStateException("Illegal value for Additional Attributes For Display: " + this.displayColNamesString);
     }
-	  //ignoreEmptyRowJobNum
+    //ignoreEmptyRowJobNum
     if (this.ignoreEmptyRowJobNum < 0) {
       throw new IllegalStateException("Illegal value for Non-Spatial Attribute Minimum Count: " + this.ignoreEmptyRowJobNum);
     }
-	  //Value Chain Mode
-	  if (this.vcmode != true & this.vcmode != false) {
+    //Value Chain Mode
+    if (this.vcmode != true & this.vcmode != false) {
       throw new IllegalStateException("Illegal value for Value Chain Mode: " + this.vcmode);
     }
-	  //spatialNonSpatialDistWeightsString
-	  if (this.spatialNonSpatialDistWeightsString == null) {
+    //spatialNonSpatialDistWeightsString
+    if (this.spatialNonSpatialDistWeightsString == null) {
       throw new IllegalStateException("Illegal value for Spatial vs Non-Spatial Distance Weights: " + this.spatialNonSpatialDistWeightsString);
     }
-	}
-	
-	
-	@Execute
-	public void compute() throws REXPMismatchException, IOException {
-		try {
-		  LOGGER.debug("compute executed");
-			// setup the script to execute
-			// 1. load the required script
-		  
+  }
+  
+  
+  @Execute
+  public void compute() throws REXPMismatchException, IOException {
+    try {
+      LOGGER.debug("compute executed");
+      // setup the script to execute
+      // 1. load the required script
+      
       try {
       this.cIn.assign("script", Rscript.load("/wardsClustering.r"));
       } catch (IOException e) {
         throw new IOException("Unable to load Script", e);
       }
-		  
-			// 2. setup the inputs
-			this.cIn.assign("geodisthreshold", new REXPInteger(this.geodisthreshold));
-			this.cIn.assign("targetclusternum", new REXPInteger(this.targetclusternum));
-			this.cIn.assign("displayColNames", new REXPString(this.displayColNamesString.split(",")));
-			this.cIn.assign("interestedColNames", new REXPString(this.interestedColNamesString.split(",")));
-			
-			double[] interestedColWeights = {};
-			try {
-				interestedColWeights = this.convertStringArraytoDoubleArray(this.interestedColWeightsString.split(","));
-				
-				// test if interestedColWeights add up to 1
-				double sumWeight = 0.0;
-				for(int i=0; i<interestedColWeights.length; i++){
-					sumWeight = sumWeight + interestedColWeights[i];
-				}
-				if (sumWeight<0.99 || sumWeight>1.0){
-					throw new Exception("weights of interested columns should add up to 1");
-				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return;
-				}
-			
-			this.cIn.assign("interestedColWeights", new REXPDouble(interestedColWeights));
-			
-			double[] spatialNonSpatialDistWeights = {0.5, 0.5};
-			try {
-				spatialNonSpatialDistWeights = this.convertStringArraytoDoubleArray(this.spatialNonSpatialDistWeightsString.split(","));
-				// test if spatialNonSpatialDistWeights add up to 1
-				double sumWeight = 0.0;
-				for(int i=0; i<spatialNonSpatialDistWeights.length; i++){
-					sumWeight = sumWeight + spatialNonSpatialDistWeights[i];
-				}
-				if (sumWeight<0.99 || sumWeight>1.0){
-					throw new Exception("weights of spatial and non-spatial distances should add up to 1");
-				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return;
-			}
-			
-			this.cIn.assign("spatialNonSpatialDistWeights", new REXPDouble(spatialNonSpatialDistWeights));
-			this.cIn.assign("gIgnoreEmptyRowJobNum", new REXPDouble(this.ignoreEmptyRowJobNum));
-			this.cIn.assign("gVcMode", new REXPLogical(this.vcmode));
-			this.cIn.assign("gErrorOccurs", new REXPLogical(false));
+      
+      // 2. setup the inputs
+      this.cIn.assign("geodisthreshold", new REXPInteger(this.geodisthreshold));
+      this.cIn.assign("targetclusternum", new REXPInteger(this.targetclusternum));
+      this.cIn.assign("displayColNames", new REXPString(this.displayColNamesString.split(",")));
+      this.cIn.assign("interestedColNames", new REXPString(this.interestedColNamesString.split(",")));
+      
+      double[] interestedColWeights = {};
+      try {
+        interestedColWeights = this.convertStringArraytoDoubleArray(this.interestedColWeightsString.split(","));
+        
+        // test if interestedColWeights add up to 1
+        double sumWeight = 0.0;
+        for(int i=0; i<interestedColWeights.length; i++){
+          sumWeight = sumWeight + interestedColWeights[i];
+        }
+        if (sumWeight<0.99 || sumWeight>1.0){
+          throw new Exception("weights of interested columns should add up to 1");
+        }
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        return;
+        }
+      
+      this.cIn.assign("interestedColWeights", new REXPDouble(interestedColWeights));
+      
+      double[] spatialNonSpatialDistWeights = {0.5, 0.5};
+      try {
+        spatialNonSpatialDistWeights = this.convertStringArraytoDoubleArray(this.spatialNonSpatialDistWeightsString.split(","));
+        // test if spatialNonSpatialDistWeights add up to 1
+        double sumWeight = 0.0;
+        for(int i=0; i<spatialNonSpatialDistWeights.length; i++){
+          sumWeight = sumWeight + spatialNonSpatialDistWeights[i];
+        }
+        if (sumWeight<0.99 || sumWeight>1.0){
+          throw new Exception("weights of spatial and non-spatial distances should add up to 1");
+        }
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        return;
+      }
+      
+      this.cIn.assign("spatialNonSpatialDistWeights", new REXPDouble(spatialNonSpatialDistWeights));
+      this.cIn.assign("gIgnoreEmptyRowJobNum", new REXPDouble(this.ignoreEmptyRowJobNum));
+      this.cIn.assign("gVcMode", new REXPLogical(this.vcmode));
+      this.cIn.assign("gErrorOccurs", new REXPLogical(false));
 
-			// 3. call the function defined in the script
-			
-			
-			//this.c.eval("try(eval(parse(text=script)),silent=FALSE)");
-			this.cOut = this.cIn;
-			LOGGER.debug("executeing eval");
-			REXP r = this.cOut.eval("try(eval(parse(text=script)),silent=FALSE)");
-			LOGGER.debug("eval executed");
+      // 3. call the function defined in the script
+      
+      
+      //this.c.eval("try(eval(parse(text=script)),silent=FALSE)");
+      this.cOut = this.cIn;
+      LOGGER.debug("executeing eval");
+      REXP r = this.cOut.eval("try(eval(parse(text=script)),silent=FALSE)");
+      LOGGER.debug("eval executed");
       if (r.inherits("try-error")) throw new IllegalStateException(r.asString());
-			return;	
+      return;  
 
-		} catch (REngineException e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	private double[] convertStringArraytoDoubleArray(String[] sarray) throws NumberFormatException {
-		if (sarray != null) {
-		double rltarray[] = new double[sarray.length];
-		for (int i = 0; i < sarray.length; i++) {
-			rltarray[i] = Double.parseDouble(sarray[i]);
-		}
-			return rltarray;
-		}
-			return null;
-		}
-	
+    } catch (REngineException e) {
+      e.printStackTrace();
+    }
+    
+  }
+  
+  private double[] convertStringArraytoDoubleArray(String[] sarray) throws NumberFormatException {
+    if (sarray != null) {
+    double rltarray[] = new double[sarray.length];
+    for (int i = 0; i < sarray.length; i++) {
+      rltarray[i] = Double.parseDouble(sarray[i]);
+    }
+      return rltarray;
+    }
+      return null;
+    }
+  
 }

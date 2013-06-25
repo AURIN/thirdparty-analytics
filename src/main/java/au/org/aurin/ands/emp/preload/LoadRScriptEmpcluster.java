@@ -22,50 +22,50 @@ public class LoadRScriptEmpcluster {
   
   protected final static Logger LOG = LoggerFactory.getLogger(LoadRScriptEmpcluster.class);
 
-	private static String[] rScriptResource = {
-		"geoJSON2DataFrame.r",
-		"wardsClustering.r",
-		"dataFrame2JSON.r"
-	};
-	
-	private static String[] rScript;
+  private static String[] rScriptResource = {
+    "geoJSON2DataFrame.r",
+    "wardsClustering.r",
+    "dataFrame2JSON.r"
+  };
+  
+  private static String[] rScript;
 
-	private LoadRScriptEmpcluster() {
-		rScript = null;
-	}
+  private LoadRScriptEmpcluster() {
+    rScript = null;
+  }
 
 
-	/**
-	 * {@link WardsClustering} analysis of explanatory and response variables
-	 *  
-	 * @return {@link String} representation of the WardsClustering R-Script
-	 * @throws IOException
-	 */
-	public static String getWardsClusterScript() throws IOException {
+  /**
+   * {@link WardsClustering} analysis of explanatory and response variables
+   *  
+   * @return {@link String} representation of the WardsClustering R-Script
+   * @throws IOException
+   */
+  public static String getWardsClusterScript() throws IOException {
 
-		return getScripts()[1];
-	}
-	
-	public static String getGeoJSON2DataFrameScript() throws IOException {
+    return getScripts()[1];
+  }
+  
+  public static String getGeoJSON2DataFrameScript() throws IOException {
 
-		return getScripts()[0];
-	}
+    return getScripts()[0];
+  }
 
-	public static String getDataFrame2JSONScript() throws IOException {
+  public static String getDataFrame2JSONScript() throws IOException {
 
-		return getScripts()[2];
-	}
-	
-	/**
-	 * The number of R scripts loaded by {@link LoadRScriptEmpcluster} class
-	 * 
-	 * @return total number of R-scripts loaded and available for use
-	 */
-	public static int numberOfScriptsLoaded() {
-		
-		return rScript.length;
-	}
-	
+    return getScripts()[2];
+  }
+  
+  /**
+   * The number of R scripts loaded by {@link LoadRScriptEmpcluster} class
+   * 
+   * @return total number of R-scripts loaded and available for use
+   */
+  public static int numberOfScriptsLoaded() {
+    
+    return rScript.length;
+  }
+  
   /**
    * Represents all the algorithms implementation in R scripts as a
    * {@link String} array for each of the script
