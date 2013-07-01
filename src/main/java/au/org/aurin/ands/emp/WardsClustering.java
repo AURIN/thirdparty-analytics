@@ -1,6 +1,8 @@
 package au.org.aurin.ands.emp;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
 import oms3.annotations.Description;
 import oms3.annotations.Execute;
@@ -57,7 +59,7 @@ public class WardsClustering {
   @In
   @Name("Wards Clustering Non-Spatial Attribute Selection")
   @Description("Select all non-spatial attributes required for analysis.")
-  public String interestedColNamesString;
+  public String[] ColNames;
   /**
    * {@link String} Input String for interested column names
    */
@@ -69,11 +71,11 @@ public class WardsClustering {
   /**
    * {@link String} Input String for interested column weights
    */
-
+  
   @In
   @Name("Wards Clustering Additional Attributes For Display")
   @Description("Additional attributes for display in dataset tabular output.")
-  public String displayColNamesString;
+  public String[] displayColNames;
   /**
    * {@link String} Input String for display column names string
    */
@@ -123,16 +125,16 @@ public class WardsClustering {
       throw new IllegalStateException("Illegal value for Target Cluster Number: " + this.targetclusternum);
     }
     //interestedColNamesString
-    if (this.interestedColNamesString == null) {
-      throw new IllegalStateException("Non-Spatial Attribute Selection is null: " + this.interestedColNamesString);
+    if (this.ColNames == null) {
+      throw new IllegalStateException("Non-Spatial Attribute Selection is null: " + this.ColNames);
     }
     //Non-Spatial Attribute Weights
     if (this.interestedColWeightsString == null) {
       throw new IllegalStateException("Non-Spatial Attribute Weights is null: " + this.interestedColWeightsString);
     }
     //displayColNamesString
-    if (this.displayColNamesString == null) {
-      throw new IllegalStateException("Illegal value for Additional Attributes For Display: " + this.displayColNamesString);
+    if (this.displayColNames == null) {
+      throw new IllegalStateException("Illegal value for Additional Attributes For Display: " + this.displayColNames);
     }
     //ignoreEmptyRowJobNum
     if (this.ignoreEmptyRowJobNum < 0) {
@@ -163,10 +165,13 @@ public class WardsClustering {
       }
       
       // 2. setup the inputs
+      
+      //String interestedColNamesString = convertListtoString(ColNames);
+      
       this.cIn.assign("geodisthreshold", new REXPInteger(this.geodisthreshold));
       this.cIn.assign("targetclusternum", new REXPInteger(this.targetclusternum));
-      this.cIn.assign("displayColNames", new REXPString(this.displayColNamesString.split(",")));
-      this.cIn.assign("interestedColNames", new REXPString(this.interestedColNamesString.split(",")));
+      this.cIn.assign("displayColNames", new REXPString(this.displayColNames));
+      this.cIn.assign("interestedColNames", new REXPString(ColNames));
       
       double[] interestedColWeights = {};
       try {
@@ -237,5 +242,4 @@ public class WardsClustering {
     }
       return null;
     }
-  
 }
