@@ -1,6 +1,7 @@
 package au.org.aurin.ands.emp.tests;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -73,8 +74,11 @@ public class WardsClusteringTest {
     
     wc.geodisthreshold = 10;
     wc.targetclusternum = 5;
-    wc.interestedColNamesString = "X2310,X2412,X8500";
-    wc.displayColNamesString = "LGA_CODE,LGA,ZONE_CODE";
+//    wc.interestedColNamesString = "X2310,X2412,X8500";
+    String[] selectedAttributes = {"X2310","X2412","X8500"};    
+    wc.ColNames = selectedAttributes;
+    String[] selectedAttributesDisp = {"LGA_CODE","LGA","ZONE_CODE"};   
+    wc.displayColNames = selectedAttributesDisp;
     wc.interestedColWeightsString = "0.333,0.333,0.333";
     wc.spatialNonSpatialDistWeightsString = "0.9,0.1";
     wc.ignoreEmptyRowJobNum = 1;
