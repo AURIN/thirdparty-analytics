@@ -41,8 +41,8 @@ public class WardsClustering {
    */
   
   @In
-  @Name("Wards Clustering Geo-Distance Threshold")
-  @Description("Set maximum distance beyond which polygons will not merge.")
+  @Name("Wards Clustering Geo-Distance Threshold (km)")
+  @Description("Set maximum distance in kilometres beyond which polygons will not merge.")
   public int geodisthreshold = 20;
   /**
    * {@link int} Input Integer for geo-distance threshold
