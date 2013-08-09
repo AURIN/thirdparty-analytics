@@ -33,7 +33,8 @@ public class WardsClustering {
       .getLogger(WardsClustering.class);
   
   @In
-  @Description("Input R connection")
+  @Name("Wards Clustering Input Dataset")
+  @Description("Select a spatial dataset.")
   public RConnection cIn;
   /**
    * {@link RConnection} A valid connection to a running {@link Rserve}
