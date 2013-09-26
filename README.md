@@ -11,4 +11,4 @@ Network (AURIN).  The purpose of developing this tool was to
 create a means by which governments and researchers could
 examine spatial employment clustering in metropolitan
 regions in Australia in much finer spatial units than are
-currently supplied by the Australian Bureau of Statistics (ABS). 
+currently supplied by the Australian Bureau of Statistics (ABS).
