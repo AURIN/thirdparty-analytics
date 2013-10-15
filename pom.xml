@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>au.org.aurin.empcluster</groupId>
 	<artifactId>empcluster</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<name>empcluster</name>
 	<url>www.aurin.org.au</url>
 	<organization>

@@ -49,8 +49,8 @@ public class WardsClusteringTest {
   public void test() throws RserveException, IOException, REXPMismatchException {
     
     System.out.println("========= Test case NewWards");
-    String path  = this.getClass().getClassLoader().getResource("data/testSample/MidPolygon2006_2011/").getPath();
-    path += "/" + "MidPoly_X_Employment_2006";
+    String path  = this.getClass().getClassLoader().getResource("data/testSample/FootScray_Employment_SUM_2011/").getPath();
+    path += "/" + "FootScray_Employment_SUM_2011";
     
     
     String rWorkingDir = this.getClass().getClassLoader().getResource("outputs").getPath();

@@ -2,6 +2,8 @@ package au.edu.uq.tests;
 
 import java.io.IOException;
 import junit.framework.Assert;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 import au.org.aurin.ands.emp.preload.LoadRScriptEmpcluster;
@@ -12,6 +14,7 @@ public class LoadRScriptEmpClusterTest {
    * {@link LoadRScriptEmpcluster} unit test
    */
   @Test
+  @Ignore
   public void scriptLoaderTest() {
 
     try {
