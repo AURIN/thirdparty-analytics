@@ -4,13 +4,11 @@
 #library(rgdal)      # for map projection work; also loads sp
 #library(rgeos)
 #library(PBSmapping) # for GIS_like geospatial object manipulation / anslysis including poly
-gpclibPermit()
-#require(gpclib)
-
 
 CONST_projected_proj4string = "+proj=merc +datum=WGS84"
 gAttrData = NULL
 gPolyData = NULL
+iShape = NULL
 gRltList = list()
 gOriginalProj4string = ""
 gIgnoreEmptyRowJobNum = 1
@@ -22,14 +20,12 @@ gErrorOccurs = FALSE
 
 
 f_spatialDataParsing <- function(){
-  
-  gErrorOccurs <<- TRUE
-  
+
   setScale(1e+10)
   
-  if(spatialDataFormatMode==0 & nchar(shpUrl)>0) {
+  if(spatialDataFormatMode==0 & nchar(shpFilePath)>0) {
   	print("load data from local shape file ...")
-  	x <- readShapePoly(shpUrl)
+  	x <- readShapeSpatial(shpFilePath)
   	attr(x@proj4string,"projargs") = "+proj=longlat +ellps=GRS80 +no_defs"
   	
   } else if(spatialDataFormatMode==1 & nchar(geoJSONFilePath)>0){
@@ -43,25 +39,41 @@ f_spatialDataParsing <- function(){
   	x<-readOGR(dsn=geoJSONString, layer = 'OGRGeoJSON')
  
   }
+  else {
+  	print("ERROR: no data loaded")
+  }
   
-  # uppercase all column names
-  colnames(x@data) = toupper(colnames(x@data))
-    
   gOriginalProj4string <<- attr(x@proj4string,"projargs")
   
   # check if the original data is projected
   # Transform the polygons (which were read in as unprojected geographic coordinates) to an Albers Equal Area projection
   # this is essential since we need calculate distance/area for polygons
   if (is.projected(x)){
-    x_pj = x
+    iShape = x
   } else
   {
-    x_pj = spTransform(x,CRS(CONST_projected_proj4string))
+    iShape = spTransform(x,CRS(CONST_projected_proj4string))
+  }
+  iShape <<- iShape
+  print("length(iShape) in geojson2dataFrame=")
+  print(length(iShape))
+  print("****************")
+  gAttrData <<- iShape@data
+  if(is(iShape,"SpatialPolygonsDataFrame")) {
+     print("dataFrame is Polygon type")
+     gPolyData <<- iShape@polygons
+  }
+  else if (is(iShape,"SpatialPointsDataFrame")) {
+     print("dataFrame is Points type")
+  }
+  else if (is(iShape,"SpatialLinesDataFrame")) {
+     print("dataFrame is Lines type")
+  }
+  else {
+     print("dataFrame is neither Polygons, Points, nor Lines")
   }
   
-  gAttrData <<- x_pj@data
-  gPolyData <<- x_pj@polygons
-  #print(sprintf("=====================load data rows:%i", nrow(gAttrData)))
+  print(sprintf("=====================load data rows:%i", nrow(gAttrData)))
 }
 
 f_spatialDataParsing()

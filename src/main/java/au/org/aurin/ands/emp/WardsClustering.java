@@ -1,9 +1,5 @@
 package au.org.aurin.ands.emp;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-
 import oms3.annotations.Description;
 import oms3.annotations.Execute;
 import oms3.annotations.In;
@@ -15,19 +11,21 @@ import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPInteger;
 import org.rosuda.REngine.REXPLogical;
-import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPString;
 import org.rosuda.REngine.REngineException;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.edu.uq.aurin.interfaces.Statistics;
+import au.edu.uq.aurin.logging.Rlogger;
 import au.edu.uq.aurin.util.Rscript;
 import au.edu.uq.aurin.util.Rserve;
-//import au.org.aurin.ands.emp.preload.LoadRScriptEmpcluster;
-//import au.org.aurin.ands.emp.preload.Rserve;
+import au.edu.uq.aurin.util.StatisticsException;
+import au.org.aurin.workflow.AurinComponent;
+import au.org.aurin.workflow.EnvVars;
 
-public class WardsClustering {
+public class WardsClustering extends AurinComponent implements Statistics {
   
   private static final Logger LOGGER = LoggerFactory
       .getLogger(WardsClustering.class);
@@ -111,6 +109,12 @@ public class WardsClustering {
   @Out
   public RConnection cOut;
   
+  protected REXP worker;
+  /**
+   * The result of {@link WardClustering} as an {@link REXP} object
+   * containing all of the results from R
+   */
+  
   @Initialize
   public void validateInputs() throws IllegalArgumentException {
     //RConnection
@@ -151,24 +155,23 @@ public class WardsClustering {
     }
   }
   
+  @Override
+  public String prettyPrint() throws StatisticsException {
+    final StringBuilder s = new StringBuilder();
+    return s.toString();
+  }
   
   @Execute
-  public void compute() throws REXPMismatchException, IOException {
-    try {
-      LOGGER.debug("compute executed");
+  public void compute() throws StatisticsException {
+    
+      LOGGER.debug("Wards Clustering compute executed");
       // setup the script to execute
       // 1. load the required script
-      
-      try {
+    try {
       this.cIn.assign("script", Rscript.load("/wardsClustering.r"));
-      } catch (IOException e) {
-        throw new IOException("Unable to load Script", e);
-      }
+      
       
       // 2. setup the inputs
-      
-      //String interestedColNamesString = convertListtoString(ColNames);
-      
       this.cIn.assign("geodisthreshold", new REXPInteger(this.geodisthreshold));
       this.cIn.assign("targetclusternum", new REXPInteger(this.targetclusternum));
       this.cIn.assign("displayColNames", new REXPString(this.displayColNames));
@@ -215,20 +218,30 @@ public class WardsClustering {
       this.cIn.assign("gIgnoreEmptyRowJobNum", new REXPDouble(this.ignoreEmptyRowJobNum));
       this.cIn.assign("gVcMode", new REXPLogical(this.vcmode));
       this.cIn.assign("gErrorOccurs", new REXPLogical(false));
+      
+      // 2.5 Setup R logging
+      Rlogger.logger(getEnvVar(EnvVars.LOG_LEVEL), getEnvVar(EnvVars.LOG_DIRECTORY));
+      this.cIn.assign("optionsLogging", Rlogger.getLogOptions());
+
+      LOGGER.debug("RLOGGER" + Rlogger.getLogOptions().toDebugString());
 
       // 3. call the function defined in the script
-      
-      
-      //this.c.eval("try(eval(parse(text=script)),silent=FALSE)");
-      this.cOut = this.cIn;
-      LOGGER.debug("executeing eval");
-      REXP r = this.cOut.eval("try(eval(parse(text=script)),silent=FALSE)");
-      LOGGER.debug("eval executed");
-      if (r.inherits("try-error")) throw new IllegalStateException(r.asString());
-      return;  
+      LOGGER.debug("about to execute eval...");
+      this.worker = cIn.eval("try(eval(parse(text=script)),silent=FALSE)");
+      LOGGER.debug("worker result: {}", this.worker.toDebugString());
 
-    } catch (REngineException e) {
-      e.printStackTrace();
+      // 5. setup the output RConnection with results
+      this.cOut = this.cIn; 
+
+    } catch (final IllegalArgumentException ie) {
+      LOGGER.error("Invalid Input: {}", ie.getMessage());
+      throw new StatisticsException(ie.getMessage(), ie);
+    } catch (final REngineException e) {
+      LOGGER.error("REngine error: {}", e.getMessage());
+      throw new StatisticsException(e.getMessage(), e);
+    } catch (final StatisticsException s) {
+      LOGGER.error("SpatialStatistics: {}", s);
+      throw s;
     }
     
   }

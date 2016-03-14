@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>au.org.aurin.empcluster</groupId>
 	<artifactId>empcluster</artifactId>
-	<version>1.0</version>
+	<version>1.1-SNAPSHOT</version>
 	<name>empcluster</name>
 	<url>www.aurin.org.au</url>
 	<organization>
@@ -50,8 +50,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -71,7 +71,7 @@
 		<dependency>
 			<groupId>au.edu.uq.aurin</groupId>
 			<artifactId>analytics-commons</artifactId>
-			<version>0.2</version>
+			<version>1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
@@ -81,12 +81,12 @@
 		<dependency>
 			<groupId>au.org.aurin.third-party</groupId>
 			<artifactId>REngine</artifactId>
-			<version>1.7-0</version>
+			<version>1.8-0</version>
 		</dependency>
 		<dependency>
 			<groupId>au.org.aurin.third-party</groupId>
 			<artifactId>RserveEngine</artifactId>
-			<version>1.7-0</version>
+			<version>1.8-0</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -101,7 +101,7 @@
 		<dependency>
 			<groupId>au.org.aurin</groupId>
 			<artifactId>annotations</artifactId>
-			<version>0.4.2</version>
+			<version>0.4.7</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

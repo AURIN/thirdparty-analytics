@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
  * @author Irfan
  * 
  */
+@Deprecated
 public class LoadRScriptEmpcluster {
   
   protected final static Logger LOG = LoggerFactory.getLogger(LoadRScriptEmpcluster.class);

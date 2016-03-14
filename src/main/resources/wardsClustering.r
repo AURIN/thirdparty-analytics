@@ -1,12 +1,98 @@
 # required packages are preloaded and defined here:/Library/Frameworks/R.framework/Versions/2.15/Resources/library/base/R/Rprofile
 #library(maptools)   # for geospatial services; also loads foreign and sp
-#library(gpclib)     # General Polygon Clipping library 
 #library(rgdal)      # for map projection work; also loads sp
 #library(rgeos)
 #library(PBSmapping) # for GIS_like geospatial object manipulation / analysis including poly
 
-gpclibPermit()
-require(gpclib)
+logListLevels <- list(OFF=1, ERROR=2, WARN=3, INFO=4, DEBUG=5, TRACE=6)
+
+libraryError <- function() {
+  if( !(require("log4r")) ) {
+    stop("Library Error: ", call.=print(traceback()))
+  }  
+}
+
+# No logging scenario
+setupNullLogger <- function() {
+  
+  lfile <- ""
+  llvl <- 1
+  rLog <- create.logger(logfile=lfile);
+  level(rLog) <- verbosity(llvl) # log level 5 - FATAL or 6 - TRACE only
+  
+  #  info(rLog, c("str(rlogger) = ", capture.output(str(rlogger))))
+  print(paste("Logging LEVEL:", llvl, "Logging DIRECTORY:", lfile))
+  
+  return(rLog)
+}
+
+# Logging to given directory and a log level
+setupFileLogger <- function(optionsLogging) {
+  
+  if(optionsLogging$LOG_LEVEL == "OFF" || optionsLogging$LOG_DIRECTORY == "") {
+    rLog <- setupNullLogger()
+    
+  } else {
+    lfile <- as.character(paste(optionsLogging$LOG_DIRECTORY, 
+                                .Platform$file.sep, "rlogger.rlog",
+                                sep="", collpse=""))
+    tupperLvl <- as.character(toupper(optionsLogging$LOG_LEVEL))
+    numLogLevel <- as.integer(logListLevels[[tupperLvl]])
+    llvl <- verbosity(numLogLevel)
+    print("lfile = "); print(lfile)
+    print("tupperLvl = "); print(tupperLvl)
+    print("numLogLevel = "); print(numLogLevel)
+    print("llvl = "); print(llvl)
+    
+    rLog <- log4r::create.logger(logfile=lfile, level=llvl)
+  }
+  print(paste("str(rLog) = ", capture.output(str(rLog))))
+  info(rLog, paste("info:: str(rLog) = ", capture.output(str(rLog))))
+  debug(rLog, paste("debug:: str(rLog) = ", capture.output(str(rLog))))
+  
+  return(rLog)
+}
+
+# Main logger setup function
+# Supports: String LOG_LEVEL and LOG_DIRECTORY
+setupLogging <- function() {
+  
+  libraryError()
+  
+  # check validity of optionsLogging
+  if(exists("optionsLogging") == TRUE) {
+    print("optionsLogging provided")
+    # validitity check
+    if( (typeof(as.character(optionsLogging$LOG_LEVEL)) == typeof("string")) && 
+          (typeof(as.character(optionsLogging$LOG_DIRECTORY)) == typeof("string"))) {
+      print("VALID 'optionsLogging' provided")
+      rLog <- setupFileLogger(optionsLogging)
+    } else {
+      # No logger Scenario
+      print("NO Logging. Logging to Console");
+      rLog <- setupNullLogger()
+    }
+  } else {
+    ## No logger scenario
+    print("NO Logging. Logging to Console");
+    rLog <- setupNullLogger()
+  }
+  return(rLog)
+}
+
+errorLogger <- function(e) {
+  print(paste("Error Message:", e))
+  error(rLog, conditionMessage(e))
+  ## clear traceback
+  #assign(".Traceback", NULL, "package:base")
+  return(e)
+}
+warningLogger <- function(w) {
+  print(paste("Warning Message:", w))
+  warn(rLog, w)
+  return(w)
+}
+
 
 CONST_projected_proj4string = "+proj=merc +datum=WGS84"
 # the output projection string is EPSG4283, which can be obtained this way:
@@ -120,7 +206,17 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
   print(paste("=== algorithm starts at ", Sys.time(), " ==="))
+  
   # do some inputs validation
+  debug(rLog, paste("====:Inputs:===== "))
+  debug(rLog, paste("dthresh = ", dthresh))
+  debug(rLog, paste("ianmwh = ", ianmwh))
+  debug(rLog, paste("snswh = ", snswh))
+  debug(rLog, paste("proj4string = ", proj4string))
+  debug(rLog, paste("clustnum = ", clustnum))
+  debug(rLog, paste("useCentroidDist = ", useCentroidDist))
+  debug(rLog, paste("vcmode = ", vcmode))
+  
   
   # start time
   algStartTime = Sys.time()
@@ -533,4 +629,14 @@ f_run <- function(useCentroidDist = TRUE, ignoreEmptyRow = TRUE){
   f_wards(adata=gAttrData, pdata=gPolyData, ianmwh=nmwt, snswh=spatialNonSpatialDistWeights, dthresh=geodisthreshold, proj4string=gOriginalProj4string, clustnum=targetclusternum, useCentroidDist=useCentroidDist, vcmode=gVcMode)
 }
 
-f_run()
+#f_run()
+
+# setup logging
+#optionsLogging <<- data.frame(LOG_LEVEL="DEBUG", LOG_DIRECTORY="/tmp")
+
+#### R MAIN AUTO RUN
+rLog <- setupLogging()
+
+tryCatch(f_run(),
+         error=function(e) {errorLogger(e)}
+)
