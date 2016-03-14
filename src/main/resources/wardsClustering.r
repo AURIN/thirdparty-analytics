@@ -277,6 +277,7 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
   dist_mat_rowcounter = 1
   
   debugPrint(paste("initialization distance matrix starts at ", Sys.time()))
+  debug(rLog, paste("initialization distance matrix starts at ",  Sys.time()))
   
   # assign values to distance matrix
   for (idx_i in 1:(CUR_POLYGON_NUM-1)){
@@ -285,6 +286,7 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
     len_pi = gLength(pi)
     
     debugPrint(sprintf("handling p%d of %d",idx_i, CUR_POLYGON_NUM))
+    debug(rLog, paste("handling p%d of %d = ", idx_i, CUR_POLYGON_NUM))
     
     for (idx_j in (idx_i+1):CUR_POLYGON_NUM){
       latlon_j = pdata[[idx_j]]@labpt
@@ -340,7 +342,9 @@ f_wards <- function(adata, pdata, ianmwh, snswh=c(0.5,0.5), dthresh, proj4string
   dist_mat = dist_mat[filter, , drop=FALSE]
   
   debugPrint(sprintf("initial dist_mat row number: %i",nrow(dist_mat)))
+  debug(rLog, paste("initial dist_mat row number: %i", nrow(dist_mat)))
   debugPrint(paste("initialization distance matrix ends at ", Sys.time()))
+  debug(rLog, paste("initialization distance matrix ends at ", Sys.time()))
   
   # perform ward's clustering
   while(nrow(adata) > 1) #continue if more than one rows exist
