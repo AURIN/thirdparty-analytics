@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>au.org.aurin.empcluster</groupId>
 	<artifactId>empcluster</artifactId>
-	<version>1.1-SNAPSHOT</version>
+	<version>1.1</version>
 	<name>empcluster</name>
 	<url>www.aurin.org.au</url>
 	<organization>
@@ -71,7 +71,7 @@
 		<dependency>
 			<groupId>au.edu.uq.aurin</groupId>
 			<artifactId>analytics-commons</artifactId>
-			<version>1.0</version>
+			<version>1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
